@@ -8,7 +8,7 @@
 
 ## 1. GENERAL INFORMATION & DELIVERABLE LINKS
 * **Team Members:**
-  1. Nguyễn Thanh Sinh – Student ID: [Điền MSSV của bạn] – Role: Fullstack Mobile Developer (PWA & Offline Architecture) – Contribution: 100%
+  1. Nguyễn Thanh Sinh – Student ID: 23IT.B188 – Role: Fullstack Mobile Developer (PWA & Offline Architecture) – Contribution: 100%
 * **📱 Live Demo URL:** https://thanhsinh-910.github.io/khaosat-mini/
 * **📦 GitHub Repository:** https://github.com/ThanhSinh-910/khaosat-mini
 * **🎥 Video Demo (Optional):** [Cung cấp nếu có]
