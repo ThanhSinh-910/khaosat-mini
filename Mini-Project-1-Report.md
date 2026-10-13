@@ -1,6 +1,6 @@
 # MINI-PROJECT SHORT TECHNICAL REPORT
 **Course:** Cross-Platform Mobile App Development (VKU)  
-**Mini-Project Title:** Mini-Project 1: VKU Field Survey PWA  
+**Mini-Project Title:** Mini-Project 1: VKU Field Survey PWA & Hybrid Mobile with Capacitor  
 **Team / Student Name:** Nguyễn Thanh Sinh (GitHub: ThanhSinh-910)  
 **Submission Date:** 14/10/2026  
 
@@ -8,8 +8,9 @@
 
 ## 1. GENERAL INFORMATION & DELIVERABLE LINKS
 * **Team Members:**
-  1. Nguyễn Thanh Sinh — Student ID: 23IT.B188 — Role: Fullstack Mobile Developer (PWA & Offline Architecture) — Contribution: 100%
-* **🔗 Live Demo URL:** [https://thanhsinh-910.github.io/khaosat-mini/](https://thanhsinh-910.github.io/khaosat-mini/)
+  1. Nguyễn Thanh Sinh — Student ID: 23IT.B188 — Role: Fullstack Mobile Developer (PWA, Capacitor Native Bridge & Offline Architecture) — Contribution: 100%
+* **🔗 Live Demo PWA (Web):** [https://thanhsinh-910.github.io/khaosat-mini/](https://thanhsinh-910.github.io/khaosat-mini/)
+* **📱 Android APK Download (Release):** [Download vku-facility-check.apk (Release v1.0.0)](https://github.com/ThanhSinh-910/khaosat-mini/releases/download/v1.0.0/vku-facility-check.apk) *(Cũng có sẵn tại thư mục gốc repository: `./vku-facility-check.apk`)*
 * **💻 GitHub Repository:** [https://github.com/ThanhSinh-910/khaosat-mini](https://github.com/ThanhSinh-910/khaosat-mini)
 * **🎥 Video Demo (Optional):** [Cung cấp nếu có]
 
@@ -18,91 +19,92 @@
 ## 2. FEATURE IMPLEMENTATION CHECKLIST
 | # | Required Feature | Status | Implementation Details & Acceptance Level |
 |:---:|---|:---:|---|
-| 1 | **Responsive Mobile Viewport** | ✅ Complete | Giao diện Mobile-First hoàn toàn responsive (`css/responsive.css`), hỗ trợ mọi kích thước màn hình điện thoại và máy tính bảng. Hỗ trợ Dark/Light tự động theo hệ thống (`prefers-color-scheme`). |
-| 2 | **PWA Installable (Standalone Mode)** | ✅ Complete | Cấu hình đầy đủ `manifest.json` (`display: standalone`, `theme_color: #1565C0`, bộ icons 192×192 & 512×512 maskable). Có thể cài đặt lên màn hình chính điện thoại Android (Chrome) và iOS (Safari) như app native. |
-| 3 | **Local Offline Persistence (IndexedDB)** | ✅ Complete | Toàn bộ phiếu khảo sát được lưu vào `IndexedDB` (`VKUFacilityDB > surveys`) qua module `js/db.js` với API async CRUD đầy đủ. Dữ liệu tồn tại vĩnh viễn trên thiết bị, không mất khi reload hay mất điện. |
-| 4 | **Service Worker & Cache-First Strategy** | ✅ Complete | `service-worker.js` thực hiện vòng đời đầy đủ (Install → Activate → Fetch). Chiến lược **Cache-First** pre-cache toàn bộ App Shell (HTML, CSS, JS, Icons). Fallback về `index.html` khi offline. Cập nhật cache khi có phiên bản mới (`VKU-CACHE-v2`). |
-| 5 | **Automatic Background Sync** | ✅ Complete | `js/network.js` lắng nghe sự kiện `online`/`offline`, hiển thị banner trạng thái kết nối. Các phiếu khi offline được đánh dấu `synced: false`. `js/sync.js` tự động đồng bộ hàng đợi lên server khi phát hiện có mạng trở lại. |
+| 1 | **Responsive Mobile Viewport** | ✅ Complete | Giao diện Mobile-First hoàn toàn responsive (`css/responsive.css`), hỗ trợ hoàn hảo mọi kích thước màn hình điện thoại & tablet. Hỗ trợ Dark/Light Theme tự động (`prefers-color-scheme`). |
+| 2 | **PWA Standalone & Manifest** | ✅ Complete | Cấu hình đầy đủ `manifest.json` (`display: standalone`, `theme_color: #1565C0`, icons 192×192 & 512×512 maskable). Có thể cài đặt trực tiếp từ trình duyệt lên màn hình chính không có thanh URL. |
+| 3 | **Local Offline Persistence (IndexedDB)** | ✅ Complete | Form khảo sát cơ sở vật chất (chọn tòa nhà, tầng, phòng, đánh giá 10 hạng mục thiết bị, ghi chú, đính kèm ảnh). Lưu trực tiếp vào `IndexedDB` (`VKUFacilityDB > surveys`) qua async CRUD API trong `js/db.js`, bảo đảm an toàn dữ liệu 100% khi offline. |
+| 4 | **Service Worker & Cache-First Strategy** | ✅ Complete | `service-worker.js` triển khai đầy đủ vòng đời (Install → Activate → Fetch). Chiến lược **Cache-First** pre-cache toàn bộ App Shell (HTML, CSS, JS, Icons), fallback về `index.html` khi mất mạng. |
+| 5 | **Automatic Background Sync & Queue** | ✅ Complete | `js/network.js` bắt sự kiện `online`/`offline`, hiển thị banner trạng thái. Phiếu tạo khi offline mang cờ `synced: false`. `js/sync.js` tự động đồng bộ hàng đợi lên máy chủ ngay khi có mạng trở lại. |
+| 6 | **Capacitor Android Packaging (Hybrid Bridge)** | ✅ Complete | Tích hợp thành công **Capacitor 8.5** với cấu hình `capacitor.config.ts` (`appId: edu.vku.facilitycheck`). Cài đặt các core plugins: `@capacitor/camera`, `@capacitor/network`, `@capacitor/geolocation`, `@capacitor/local-notifications`. Biên dịch thành công file Android APK (`vku-facility-check.apk` ~9.1MB) cài đặt và chạy mượt mà trên thiết bị Android thật. |
 
 ---
 
 ## 3. TECHNICAL ARCHITECTURE & PROJECT STRUCTURE
 
-### 3.1. Kiến trúc hệ thống (Offline-First SPA)
+### 3.1. Kiến trúc Hybrid Model (Capacitor Native Bridge)
 
 ```
-┌─────────────────────────────────────────┐
-│           PWA Frontend (SPA)            │
-│  index.html – Hash Router (#page)       │
-├─────────────────────────────────────────┤
-│           JavaScript Modules            │
-│  app.js       → Router, Dashboard       │
-│  db.js        → IndexedDB abstraction   │
-│  network.js   → Online/offline detect   │
-│  sync.js      → Queue & Sync service    │
-│  survey.js    → Form tạo/sửa phiếu     │
-│  history.js   → Lịch sử, filter        │
-│  statistics.js → Thống kê, chart       │
-├─────────────────────────────────────────┤
-│           Service Worker                │
-│  Cache-First cho tất cả static assets   │
-│  Offline fallback → index.html          │
-├─────────────────────────────────────────┤
-│           IndexedDB Storage             │
-│  VKUFacilityDB > surveys                │
-└─────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│          Web Application (HTML5 / CSS3 / JS)           │
+│          SPA Shell chạy trong tối ưu hóa WebView       │
+├───────────────────────────┬────────────────────────────┤
+│   PWA Layer (Web/Browser) │   Capacitor Bridge Layer   │
+│   • Service Worker        │   • TypeScript Plugin Calls│
+│   • Cache-First Strategy  │   • Message Passing (JNI)  │
+│   • IndexedDB Local Store │   • Hardware APIs Dispatch │
+└───────────────────────────┴─────────────┬──────────────┘
+                                          ▼
+┌────────────────────────────────────────────────────────┐
+│                Native Android Device APIs              │
+│       Camera • Network • Geolocation • Local Notif     │
+└────────────────────────────────────────────────────────┘
 ```
 
 ### 3.2. Cấu trúc thư mục
 ```text
 khaosat-mini/
 ├── index.html            # SPA App Shell – giao diện chính
-├── manifest.json         # Cấu hình PWA & thông tin cài đặt
+├── manifest.json         # Cấu hình PWA manifest (Standalone)
 ├── service-worker.js     # Cache-First Service Worker offline
+├── capacitor.config.ts   # Cấu hình Capacitor Bridge (appId, scheme, splash)
+├── capacitor.config.json # Cấu hình JSON cho Capacitor CLI
+├── package.json          # Dependencies: @capacitor/core, camera, network, geolocation...
+├── vku-facility-check.apk# Tệp cài đặt Android APK hoàn chỉnh (~9.1MB)
 ├── css/
 │   ├── style.css         # Design system, theme VKU Blue
 │   └── responsive.css    # Responsive mobile-first viewports
 ├── js/
 │   ├── app.js            # Hash Router, điều hướng & Dashboard
 │   ├── db.js             # IndexedDB wrapper (VKUFacilityDB)
-│   ├── network.js        # Phát hiện Online/Offline & banner
-│   ├── sync.js           # Hàng đợi đồng bộ & gửi lên server
+│   ├── network.js        # Bắt sự kiện Online/Offline & banner
+│   ├── sync.js           # Hàng đợi đồng bộ & gửi lên server/Google Sheets
 │   ├── survey.js         # Logic form khảo sát cơ sở vật chất
-│   ├── history.js        # Danh sách lịch sử khảo sát & lọc
-│   └── statistics.js     # Thống kê & biểu đồ tình trạng phòng
-├── assets/icons/         # Biểu tượng PWA (192px, 512px maskable)
-├── server.py             # Dev server Python để test local
-└── README.md             # Hướng dẫn chi tiết chạy & kiểm thử
+│   ├── history.js        # Lịch sử phiếu khảo sát & bộ lọc
+│   └── statistics.js     # Thống kê & biểu đồ tình trạng thiết bị
+├── assets/icons/         # Biểu tượng PWA & Mobile launcher (192px, 512px)
+├── android/              # Native Android project (Capacitor generated source)
+└── README.md             # Hướng dẫn chi tiết chạy, test & build APK
 ```
 
-### 3.3. Luồng dữ liệu & Exception Handling
-- **Luồng Offline → Sync:**
-  `Người dùng nhập phiếu` → `IndexedDB (synced: false)` → *(có mạng)* → `sync.js gửi lên server` → `synced: true`
-- **Exception handling:** Nếu request sync thất bại (timeout, lỗi server), bản ghi vẫn ở `synced: false` và được thử lại ở lần online tiếp theo, đảm bảo không mất dữ liệu.
-- **Cache miss handling:** Khi offline và tài nguyên chưa được cache, Service Worker trả về `index.html` (SPA shell) thay vì 404.
+### 3.3. Luồng dữ liệu & Xử lý lỗi
+- **Offline-First:** Submit form ➔ Ghi vào `IndexedDB` ngay lập tức (`synced: false`) ➔ Kiểm tra mạng: nếu online thì gọi `sync.js` đẩy lên server; nếu offline thì giữ trong queue.
+- **Tự động phục hồi mạng:** Sự kiện `online` kích hoạt quét hàng đợi và đồng bộ tự động, đánh dấu `synced: true`.
+- **Hybrid Bridge:** Trên Web chạy thuần Cache API + IndexedDB; khi đóng gói qua Capacitor, WebView nạp từ tài nguyên cục bộ `https://localhost` an toàn, tích hợp camera và notification native.
 
 ---
 
 ## 4. EMPIRICAL EVIDENCE & SCREENSHOTS
 
-*(Chèn 3–4 ảnh chụp màn hình ứng dụng thực tế trên điện thoại hoặc DevTools)*
+*(Chèn 3–4 ảnh chụp màn hình ứng dụng thực tế trên điện thoại hoặc Android Studio/DevTools)*
 
-| 1. Dashboard & Form khảo sát trên Mobile | 2. Cài đặt PWA – Standalone Mode |
+| 1. Dashboard & Form khảo sát trên Mobile | 2. Cài đặt PWA & Native App Icon |
 |:---:|:---:|
-| *(Giao diện khảo sát: chọn tòa nhà, tầng, phòng; đánh giá thiết bị bằng 3 trạng thái)* | *(Nút "Thêm vào màn hình chính" trên Chrome Android, sau khi cài không còn thanh URL)* |
+| *(Giao diện khảo sát: chọn tòa nhà, tầng, phòng; đánh giá 10 thiết bị phòng học)* | *(App icon xuất hiện trên màn hình chính Android, mở ở chế độ Standalone không có thanh URL)* |
 
-| 3. Banner Offline & Phiếu lưu vào IndexedDB | 4. Lighthouse PWA Audit |
+| 3. Banner Offline & Lưu trữ IndexedDB | 4. Android APK chạy qua Capacitor Bridge |
 |:---:|:---:|
-| *(Banner đỏ hiện khi mất mạng, app vẫn tạo và lưu phiếu bình thường)* | *(Chrome DevTools → Lighthouse → PWA score ≥ 90, Service Worker ✅, Offline ✅, Installable ✅)* |
+| *(Mất mạng hiển thị banner cảnh báo, phiếu vẫn lưu an toàn vào IndexedDB)* | *(File APK `vku-facility-check.apk` chạy trực tiếp trên thiết bị Android, kết nối Native Bridge)* |
 
 ---
 
 ## 5. TECHNICAL CHALLENGES & RESOLUTIONS
 
-### Thách thức 1: Dữ liệu không bị mất khi mất mạng giữa chừng khi nhập liệu
-* **Vấn đề:** Người dùng kiểm tra phòng học tại vùng sóng yếu — nếu form chỉ POST lên server thì mất toàn bộ dữ liệu khi offline.
-* **Giải pháp:** Áp dụng chiến lược **IndexedDB-first**: Mỗi phiếu được ghi vào `IndexedDB` với trạng thái `synced: false` **ngay khi bấm Submit**, trước khi thực hiện bất kỳ request network nào. Đảm bảo 100% dữ liệu không bị mất dù reload trang hay tắt ứng dụng.
+### Thách thức 1: Đảm bảo dữ liệu khảo sát không bị mất khi mất kết nối mạng giữa chừng
+* **Vấn đề:** Khi kiểm tra phòng học ở các khu vực khuất sóng trong trường, form gửi trực tiếp qua HTTP sẽ báo lỗi và mất sạch dữ liệu nhập liệu của người dùng.
+* **Giải pháp:** Thiết kế theo nguyên tắc **IndexedDB-First**: Khi bấm Submit, phiếu luôn được ghi vào `IndexedDB` trước với trạng thái `synced: false`. Dữ liệu tồn tại bền bỉ trên bộ nhớ máy dù reload trang, đóng app hoặc hết pin.
 
-### Thách thức 2: Đồng bộ tự động khi chuyển vùng có/không có sóng
-* **Vấn đề:** Người dùng di chuyển liên tục qua nhiều phòng, sóng không ổn định. Cần đồng bộ ngầm mà không ảnh hưởng trải nghiệm.
-* **Giải pháp:** Kết hợp `window.addEventListener('online', ...)` trong `network.js` với hàm `syncPendingSurveys()` trong `sync.js`. Khi phát hiện kết nối phục hồi, hệ thống tự động duyệt toàn bộ hàng đợi `synced: false` và gửi tuần tự lên server, cập nhật trạng thái `synced: true` khi thành công — hoàn toàn trong nền, không làm gián đoạn người dùng.
+### Thách thức 2: Đóng gói PWA thành Android APK và giải quyết xung đột đường dẫn tài nguyên
+* **Vấn đề:** Khi dùng Capacitor đóng gói thư mục gốc web (`webDir: '.'`), Capacitor CLI báo lỗi `"." is not a valid value for webDir` và thiếu cấu hình Android SDK `sdk.dir` khi chạy Gradle.
+* **Giải pháp:** 
+  1. Cấu hình thư mục phân phối `www` chứa toàn bộ assets của PWA, cập nhật `capacitor.config.ts` trỏ đúng `webDir: 'www'`.
+  2. Bổ sung `sdk.dir` vào `android/local.properties` trỏ đến Android SDK cục bộ.
+  3. Chạy `gradlew assembleDebug`, tạo thành công gói cài đặt độc lập `vku-facility-check.apk` (dung lượng gọn nhẹ ~9.1MB, chạy mượt mà trên Android).
