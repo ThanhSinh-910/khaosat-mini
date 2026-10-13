@@ -1,16 +1,16 @@
 # MINI-PROJECT SHORT TECHNICAL REPORT
 **Course:** Cross-Platform Mobile App Development (VKU)  
-**Mini-Project Title:** Mini-Project 1: VKU Field Survey – Offline Data Collection (PWA & Capacitor)  
-**Team / Student Name:** Nguyễn Thanh Sinh  
-**Submission Date:** 21/09/2026
+**Mini-Project Title:** Mini-Project 1: VKU Field Survey PWA  
+**Team / Student Name:** Nguyễn Thanh Sinh (GitHub: ThanhSinh-910)  
+**Submission Date:** 14/10/2026  
 
 ---
 
 ## 1. GENERAL INFORMATION & DELIVERABLE LINKS
 * **Team Members:**
-  1. Nguyễn Thanh Sinh – Student ID: 23IT.B188 – Role: Fullstack Mobile Developer (PWA & Offline Architecture) – Contribution: 100%
-* **📱 Live Demo URL:** https://thanhsinh-910.github.io/khaosat-mini/
-* **📦 GitHub Repository:** https://github.com/ThanhSinh-910/khaosat-mini
+  1. Nguyễn Thanh Sinh — Student ID: 23IT.B188 — Role: Fullstack Mobile Developer (PWA & Offline Architecture) — Contribution: 100%
+* **🔗 Live Demo URL:** [https://thanhsinh-910.github.io/khaosat-mini/](https://thanhsinh-910.github.io/khaosat-mini/)
+* **💻 GitHub Repository:** [https://github.com/ThanhSinh-910/khaosat-mini](https://github.com/ThanhSinh-910/khaosat-mini)
 * **🎥 Video Demo (Optional):** [Cung cấp nếu có]
 
 ---
@@ -18,58 +18,91 @@
 ## 2. FEATURE IMPLEMENTATION CHECKLIST
 | # | Required Feature | Status | Implementation Details & Acceptance Level |
 |:---:|---|:---:|---|
-| 1 | **PWA Standalone Installation** | ✅ Complete | Cấu hình đầy đủ `manifest.json` (`display: standalone`, `theme_color: #1565C0`, bộ icons 192x192 & 512x512 maskable). Có thể cài đặt trực tiếp lên màn hình chính điện thoại Android (Chrome) và iOS (Safari). |
-| 2 | **Offline Form & Local Persistence** | ✅ Complete | Form khảo sát kiểm tra cơ sở vật chất (Cơ sở, Tòa nhà, Tầng, Phòng, Đánh giá thiết bị, ghi chú, đính kèm ảnh). Lưu trữ trực tiếp vào `IndexedDB` (`VKUFacilityDB > surveys`) ngay khi tạo/sửa để không mất dữ liệu. |
-| 3 | **Automatic Background Sync & Queue** | ✅ Complete | Lắng nghe trạng thái mạng (`network.js` với sự kiện `online`/`offline`), hiển thị banner thông báo. Dữ liệu khi offline được đánh dấu `synced: false`, tự động đồng bộ lên máy chủ và Google Sheets khi có kết nối trở lại. |
-| 4 | **Service Worker & Cache-First** | ✅ Complete | Service Worker (`service-worker.js`) với chiến lược **Cache First** cho toàn bộ App Shell (HTML, CSS, JS, Icons), hỗ trợ mở và tương tác hoàn toàn offline. |
-| 5 | **Capacitor Android Packaging** | ✅ Ready | Cấu trúc source code chuẩn tĩnh (SPA), sẵn sàng đóng gói thành file APK Android thông qua Capacitor Bridge. |
+| 1 | **Responsive Mobile Viewport** | ✅ Complete | Giao diện Mobile-First hoàn toàn responsive (`css/responsive.css`), hỗ trợ mọi kích thước màn hình điện thoại và máy tính bảng. Hỗ trợ Dark/Light tự động theo hệ thống (`prefers-color-scheme`). |
+| 2 | **PWA Installable (Standalone Mode)** | ✅ Complete | Cấu hình đầy đủ `manifest.json` (`display: standalone`, `theme_color: #1565C0`, bộ icons 192×192 & 512×512 maskable). Có thể cài đặt lên màn hình chính điện thoại Android (Chrome) và iOS (Safari) như app native. |
+| 3 | **Local Offline Persistence (IndexedDB)** | ✅ Complete | Toàn bộ phiếu khảo sát được lưu vào `IndexedDB` (`VKUFacilityDB > surveys`) qua module `js/db.js` với API async CRUD đầy đủ. Dữ liệu tồn tại vĩnh viễn trên thiết bị, không mất khi reload hay mất điện. |
+| 4 | **Service Worker & Cache-First Strategy** | ✅ Complete | `service-worker.js` thực hiện vòng đời đầy đủ (Install → Activate → Fetch). Chiến lược **Cache-First** pre-cache toàn bộ App Shell (HTML, CSS, JS, Icons). Fallback về `index.html` khi offline. Cập nhật cache khi có phiên bản mới (`VKU-CACHE-v2`). |
+| 5 | **Automatic Background Sync** | ✅ Complete | `js/network.js` lắng nghe sự kiện `online`/`offline`, hiển thị banner trạng thái kết nối. Các phiếu khi offline được đánh dấu `synced: false`. `js/sync.js` tự động đồng bộ hàng đợi lên server khi phát hiện có mạng trở lại. |
 
 ---
 
 ## 3. TECHNICAL ARCHITECTURE & PROJECT STRUCTURE
-* **Kiến trúc ứng dụng (Client-First / Offline-First SPA):**
-  - **Tầng Giao diện (Presentation Layer):** Single Page Application (SPA) xây dựng trên HTML5/CSS3/Vanilla JS theo hướng Mobile-First, responsive mượt mà trên mọi kích thước màn hình.
-  - **Tầng Dịch vụ Mạng (Network & Sync Layer):** `network.js` bắt sự kiện kết nối; `sync.js` quản lý hàng đợi gửi dữ liệu (queue), hỗ trợ đẩy về Backend API và Google Sheets Script.
-  - **Tầng Lưu trữ Cục bộ (Local Data Storage):** `db.js` bọc `IndexedDB` cung cấp các hàm async CRUD cho danh mục phiếu khảo sát.
-  - **Tầng Offline & Cache (Service Worker):** `service-worker.js` đăng ký tiền bộ nhớ đệm (pre-cache) cho tất cả tài nguyên cốt lõi, fallback về `index.html` khi mất mạng.
 
-* **Cấu trúc thư mục:**
+### 3.1. Kiến trúc hệ thống (Offline-First SPA)
+
+```
+┌─────────────────────────────────────────┐
+│           PWA Frontend (SPA)            │
+│  index.html – Hash Router (#page)       │
+├─────────────────────────────────────────┤
+│           JavaScript Modules            │
+│  app.js       → Router, Dashboard       │
+│  db.js        → IndexedDB abstraction   │
+│  network.js   → Online/offline detect   │
+│  sync.js      → Queue & Sync service    │
+│  survey.js    → Form tạo/sửa phiếu     │
+│  history.js   → Lịch sử, filter        │
+│  statistics.js → Thống kê, chart       │
+├─────────────────────────────────────────┤
+│           Service Worker                │
+│  Cache-First cho tất cả static assets   │
+│  Offline fallback → index.html          │
+├─────────────────────────────────────────┤
+│           IndexedDB Storage             │
+│  VKUFacilityDB > surveys                │
+└─────────────────────────────────────────┘
+```
+
+### 3.2. Cấu trúc thư mục
 ```text
 khaosat-mini/
-├── index.html            # SPA App Shell giao diện chính
+├── index.html            # SPA App Shell – giao diện chính
 ├── manifest.json         # Cấu hình PWA & thông tin cài đặt
 ├── service-worker.js     # Cache-First Service Worker offline
 ├── css/
-│   ├── style.css         # Design system, theme VKU
-│   └── responsive.css    # Responsive mobile viewports
+│   ├── style.css         # Design system, theme VKU Blue
+│   └── responsive.css    # Responsive mobile-first viewports
 ├── js/
-│   ├── app.js            # Router, điều hướng và Dashboard
+│   ├── app.js            # Hash Router, điều hướng & Dashboard
 │   ├── db.js             # IndexedDB wrapper (VKUFacilityDB)
-│   ├── network.js        # Phát hiện Online/Offline
-│   ├── sync.js           # Đồng bộ nền & gửi Google Sheets / API
-│   ├── survey.js         # Xử lý form khảo sát cơ sở vật chất
+│   ├── network.js        # Phát hiện Online/Offline & banner
+│   ├── sync.js           # Hàng đợi đồng bộ & gửi lên server
+│   ├── survey.js         # Logic form khảo sát cơ sở vật chất
 │   ├── history.js        # Danh sách lịch sử khảo sát & lọc
-│   └── statistics.js     # Thống kê trực quan tình trạng phòng
-├── assets/icons/         # Biểu tượng PWA (192px, 512px)
-├── server.py             # Server Python kiểm thử cục bộ
-└── README.md             # Hướng dẫn chi tiết chạy và kiểm thử
+│   └── statistics.js     # Thống kê & biểu đồ tình trạng phòng
+├── assets/icons/         # Biểu tượng PWA (192px, 512px maskable)
+├── server.py             # Dev server Python để test local
+└── README.md             # Hướng dẫn chi tiết chạy & kiểm thử
 ```
+
+### 3.3. Luồng dữ liệu & Exception Handling
+- **Luồng Offline → Sync:**
+  `Người dùng nhập phiếu` → `IndexedDB (synced: false)` → *(có mạng)* → `sync.js gửi lên server` → `synced: true`
+- **Exception handling:** Nếu request sync thất bại (timeout, lỗi server), bản ghi vẫn ở `synced: false` và được thử lại ở lần online tiếp theo, đảm bảo không mất dữ liệu.
+- **Cache miss handling:** Khi offline và tài nguyên chưa được cache, Service Worker trả về `index.html` (SPA shell) thay vì 404.
 
 ---
 
 ## 4. EMPIRICAL EVIDENCE & SCREENSHOTS
-1. **Màn hình Dashboard & Form khảo sát trên Mobile:**
-   - Giao diện khảo sát trực quan, hỗ trợ chọn phòng, đánh giá tình trạng thiết bị (máy chiếu, điều hòa, bàn ghế, điện,...).
-2. **Cài đặt PWA (Standalone Mode):**
-   - Ứng dụng hiển thị nút/banner nhắc cài đặt, sau khi cài xuất hiện trên App Drawer như app native, mở lên không có thanh URL của trình duyệt.
-3. **Thử nghiệm chế độ Offline & Đồng bộ khi có mạng:**
-   - Bật chế độ Airplane / Offline trong DevTools: Ứng dụng vẫn tạo phiếu mới bình thường, lưu vào IndexedDB.
-   - Khi bật lại mạng: Banner báo Online xuất hiện và các phiếu `synced: false` tự động được đồng bộ.
+
+*(Chèn 3–4 ảnh chụp màn hình ứng dụng thực tế trên điện thoại hoặc DevTools)*
+
+| 1. Dashboard & Form khảo sát trên Mobile | 2. Cài đặt PWA – Standalone Mode |
+|:---:|:---:|
+| *(Giao diện khảo sát: chọn tòa nhà, tầng, phòng; đánh giá thiết bị bằng 3 trạng thái)* | *(Nút "Thêm vào màn hình chính" trên Chrome Android, sau khi cài không còn thanh URL)* |
+
+| 3. Banner Offline & Phiếu lưu vào IndexedDB | 4. Lighthouse PWA Audit |
+|:---:|:---:|
+| *(Banner đỏ hiện khi mất mạng, app vẫn tạo và lưu phiếu bình thường)* | *(Chrome DevTools → Lighthouse → PWA score ≥ 90, Service Worker ✅, Offline ✅, Installable ✅)* |
 
 ---
 
 ## 5. TECHNICAL CHALLENGES & RESOLUTIONS
-* **Thách thức 1: Đảm bảo dữ liệu khảo sát không bị mất khi đang nhập liệu trong vùng mất sóng.**  
-  *Giải pháp:* Tích hợp cơ chế tự động lưu nháp và lưu phiếu vào `IndexedDB` ngay khi bấm submit, đồng thời gán cờ `synced: false`. Dữ liệu luôn an toàn trên thiết bị dù reload trang hay tắt ứng dụng.
-* **Thách thức 2: Đồng bộ ngầm khi người dùng di chuyển giữa vùng có và không có sóng.**  
-  *Giải pháp:* Sử dụng `window.addEventListener('online', ...)` kết hợp vòng lặp kiểm tra hàng đợi (queue) trong `sync.js`, tự động gửi lần lượt các bản ghi chưa đồng bộ lên server khi phát hiện có mạng trở lại.
+
+### Thách thức 1: Dữ liệu không bị mất khi mất mạng giữa chừng khi nhập liệu
+* **Vấn đề:** Người dùng kiểm tra phòng học tại vùng sóng yếu — nếu form chỉ POST lên server thì mất toàn bộ dữ liệu khi offline.
+* **Giải pháp:** Áp dụng chiến lược **IndexedDB-first**: Mỗi phiếu được ghi vào `IndexedDB` với trạng thái `synced: false` **ngay khi bấm Submit**, trước khi thực hiện bất kỳ request network nào. Đảm bảo 100% dữ liệu không bị mất dù reload trang hay tắt ứng dụng.
+
+### Thách thức 2: Đồng bộ tự động khi chuyển vùng có/không có sóng
+* **Vấn đề:** Người dùng di chuyển liên tục qua nhiều phòng, sóng không ổn định. Cần đồng bộ ngầm mà không ảnh hưởng trải nghiệm.
+* **Giải pháp:** Kết hợp `window.addEventListener('online', ...)` trong `network.js` với hàm `syncPendingSurveys()` trong `sync.js`. Khi phát hiện kết nối phục hồi, hệ thống tự động duyệt toàn bộ hàng đợi `synced: false` và gửi tuần tự lên server, cập nhật trạng thái `synced: true` khi thành công — hoàn toàn trong nền, không làm gián đoạn người dùng.
